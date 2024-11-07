@@ -1,35 +1,40 @@
-import React from 'react';
-import {useDispatch, useSelector} from "react-redux";
-import {decrement, increment, incrementByAmount, useAppDispatch, useAppSelector} from "./redux/store";
+import React, {useEffect} from 'react';
+import {postActions, useAppDispatch, useAppSelector, userActions} from "./redux/store";
 
 
 
 
 function App() {
 
+    const dispatch = useAppDispatch();
+    const {userSlice:{users},postSlice:{posts}} = useAppSelector(state => state);
+    useEffect(() => {
+     dispatch(userActions.loadUsers());
+     dispatch(postActions.loadPosts());
+    }, []);
 
-    const counter1ValueState =  useAppSelector((state) => state.counter1SliceState.value);
-    const dispatch =  useAppDispatch();
+
 
 
     return (
     <div>
-        <h2>{counter1ValueState}</h2>
-        <button onClick={() => {
-        dispatch(increment());
-        }}>inc
-        </button>
+        {
+            users.map(user => (
+                <div key={user.id}>
+                    <h1>{user.name}</h1>
+                    <h2>{user.email}</h2>
+                </div>
+            ))
+        }
+        <hr/>
 
-        <button onClick={() => {
-        dispatch(decrement());
-        }}>
-        dec
-        </button>
-
-        <button onClick={() => {
-            dispatch(incrementByAmount(5));
-        }}>inc by amount of 5
-        </button>
+        <ul>
+            {
+                posts.map(post => (
+                    <li key={post.id}>{post.title}</li>
+                ))
+            }
+        </ul>
 
 
     </div>

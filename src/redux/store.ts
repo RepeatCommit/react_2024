@@ -1,74 +1,104 @@
-import {configureStore, createSlice, PayloadAction} from "@reduxjs/toolkit";
+import {IUser} from "../models/IUser";
+import {configureStore, createAsyncThunk, createSlice} from "@reduxjs/toolkit";
+import {postService, userService} from "../services/api.service";
+import {AxiosError} from "axios";
+import {IPost} from "../models/IPost";
 import {useDispatch, useSelector} from "react-redux";
 
-type CounterStateType = {
-    value: number;
+
+type UserSliceType = {
+    users:IUser[]
 }
 
-const initialState: CounterStateType = {
-    value:0,
-};
-const initialState2: CounterStateType = {
-    value:0,
-};
-const counter1Slice
-    = createSlice({
-    name: 'counter1SliceName',
-    initialState: initialState,
-    reducers: {
-        increment: (state) => {
-            state.value = state.value + 1;
-        },
-        decrement: (state) => {
-            state.value = state.value - 1;
-        },
-        incrementByAmount: (
-            state,
-            action:PayloadAction<number>) => {
-            state.value = state.value + action.payload;
-        },
+const userInitState:UserSliceType = {
+ users: []
+}
+const loadUsers = createAsyncThunk(
+    'userSlice/loadUsers',
+    async (_, thunkAPI) => {
+   try{
+       const users = await userService.getAll();
+      console.log(users);
+      return thunkAPI.fulfillWithValue(users);
+
+   }catch (e){
+       const error = e as AxiosError;
+       return thunkAPI.rejectWithValue(error.response?.data);
+   }
+
+
     }
+
+);
+
+
+const userSlice = createSlice({
+    name: "userSlice",
+    initialState: userInitState,
+    reducers:{},
+    extraReducers: builder =>
+        builder.addCase(loadUsers.fulfilled, (state, action) => {
+            state.users = action.payload;
+        })
+        .addCase(loadUsers.rejected, (state, action) => {
+            console.log(action.payload);
+        })
+
+});
+export const userActions = {
+    ...userSlice.actions,
+        loadUsers
+}
+
+/*______________________________________________________*/
+
+type PostSliceType = {
+    posts: IPost[];
+}
+
+const postInitState: PostSliceType = {
+    posts: []
+}
+
+const loadPosts = createAsyncThunk(
+    'postSlice/loadPosts',
+async (_, thunkAPI) => {
+        try{
+           const posts =  await postService.getAll();
+           return  posts;
+        }catch (e){
+            const error = e as AxiosError;
+            return thunkAPI.rejectWithValue(error.response?.data);
+
+        }
+}
+)
+
+const postSlice =  createSlice({
+    name: "postSlice",
+    initialState: postInitState,
+    reducers: {},
+    extraReducers: builder =>
+        builder
+            .addCase(loadPosts.fulfilled,(state, action) => {
+                state.posts = action.payload;
+            })
+            .addCase(loadPosts.rejected, (state, action) => {
+                console.log(action.payload);
+            })
 
 });
 
-export const {
-    decrement,
-    increment,
-    incrementByAmount} = counter1Slice.actions;
+export const postActions = {...postSlice.actions, loadPosts}
 
+/*______________________________________________________*/
 
-const counter2Slice
-    = createSlice({
-    name: 'counter2SliceName',
-    initialState: initialState2,
-    reducers: {
-        increment2: (state) => {
-            state.value = state.value + 1;
-        },
-        decrement2: (state) => {
-            state.value = state.value - 1;
-        },
-        incrementByAmount2: (
-            state,
-            action:PayloadAction<number>) => {
-            state.value = state.value + action.payload;
-        },
-    }
+export const useAppDispatch = useDispatch.withTypes<typeof store.dispatch>();
+ export const useAppSelector =  useSelector.withTypes<ReturnType<typeof store.getState>>();
 
-});
-
-const store = configureStore({
+export  const store = configureStore({
     reducer: {
-        counter1SliceState: counter1Slice.reducer,
-        counter2SliceState: counter2Slice.reducer,
-    },
+        userSlice: userSlice.reducer,
+        postSlice: postSlice.reducer
+    }
 });
-export type AppDispatch =  typeof store.dispatch;
-export const useAppDispatch =  useDispatch.withTypes<AppDispatch>();
-export type RootState = ReturnType<typeof store.getState>;
-export const useAppSelector =  useSelector.withTypes<RootState>();
-
-
-
-export default store;
-
