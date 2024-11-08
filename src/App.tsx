@@ -1,16 +1,15 @@
 import React, {useEffect} from 'react';
-import {postActions, useAppDispatch, useAppSelector, userActions} from "./redux/store";
+import {useAppDispatch, useAppSelector, userSliceActions} from "./store/store";
 
 
 
 
 function App() {
+  let {users,user}  = useAppSelector(state => state.userReducer);
+  let dispatch = useAppDispatch();
 
-    const dispatch = useAppDispatch();
-    const {userSlice:{users},postSlice:{posts}} = useAppSelector(state => state);
     useEffect(() => {
-     dispatch(userActions.loadUsers());
-     dispatch(postActions.loadPosts());
+        dispatch(userSliceActions.loadUser(5));
     }, []);
 
 
@@ -19,24 +18,11 @@ function App() {
     return (
     <div>
         {
-            users.map(user => (
-                <div key={user.id}>
-                    <h1>{user.name}</h1>
-                    <h2>{user.email}</h2>
-                </div>
-            ))
+            users.map(value => <div key={value.id}>{value.name}</div>)
         }
-        <hr/>
-
-        <ul>
-            {
-                posts.map(post => (
-                    <li key={post.id}>{post.title}</li>
-                ))
-            }
-        </ul>
 
 
+        {user && <div>{user.name}</div>}
     </div>
   );
 }
