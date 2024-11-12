@@ -4,7 +4,7 @@ import {commentService, postService, userService} from "../services/api.services
 import {AxiosError} from "axios";
 import {IPost} from "../models/IPost";
 import {IComment} from "../models/IComment";
-import {useDispatch} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 
 
 
@@ -145,7 +145,8 @@ export const store = configureStore({
     }
 });
 
-const useAppDispatch = useDispatch.withTypes<typeof store.dispatch>();
+export  const useAppDispatch = useDispatch.withTypes<typeof store.dispatch>();
+export  const useAppSelector =  useSelector.withTypes<ReturnType<typeof store.getState>>();
 
 
 
