@@ -1,14 +1,14 @@
 import React from 'react';
 import './App.css';
-import Products from "./components/products/Products";
+import ProductsComponent from "./components/ProductsComponent";
 
 
 function App() {
   return (
-    <>
-< Products/>
-
-    </>
+    <div>
+<ProductsComponent
+/>
+    </div>
   );
 }
 
