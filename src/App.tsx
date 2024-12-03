@@ -1,28 +1,43 @@
-import React, {useState} from 'react';
-import './App.css';
-import Users from "./components/users/Users";
-import {postService} from "./components/services/dummy.api.service";
-import {IPost} from "./models/IPost";
-import Posts from "./components/posts/Posts";
+import React, {FC, useEffect, useState} from 'react';
+import UsersComponent from "./components/UsersComponent";
+import CommentsComponent from "./components/CommentsComponent";
+import {IComment} from "./models/IComment";
+import {getComment, getCommentsOfUser} from "./services/api.service.posts";
 
-function App() {
+const App:FC = () => {
 
-const [posts, setPosts] = useState<IPost[]>([]);
-const lift = async (id: number)=>{
-setPosts (await postService.getPostOfUser(id));
- }
 
-  return (
-    <>
+    const  [userId] = useState<number>(0)
+    const [comments, setComments] = useState<IComment[]>([])
 
-<Users lift={lift}/>
-        <hr/>
+    useEffect(() => {
 
-        <Posts posts={posts}/>
-        <hr/>
+        if(userId !== 0){
 
-    </>
-  );
-}
+            getCommentsOfUser(userId).then(value =>setComments(value.data))
+
+        }
+        }, [userId]);
+
+
+    const lift = async (id: number) => {
+        setComments( await getComment(id).then(value => [value.data]))
+    };
+
+    return (
+        <div>
+            <h3><UsersComponent lift={lift}/></h3>
+
+            <hr/>
+
+            <h2><CommentsComponent comments={comments}/></h2>
+
+
+
+
+        </div>
+    );
+};
 
 export default App;
+
